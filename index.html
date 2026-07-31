@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0F4C81">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Jurnal Mengajar Guru</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (Excel Export) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* ================= VARIABLES ================= */
+        :root {
+            --primary: #0F4C81;
+            --secondary: #1E88E5;
+            --accent: #F4B400;
+            --success: #2E7D32;
+            --danger: #d32f2f;
+            
+            --bg-grad-1: #0F4C81;
+            --bg-grad-2: #4FC3F7;
+            --bg-grad-3: #FFFFFF;
+            
+            --glass-bg: rgba(255, 255, 255, 0.18);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            
+            --text-main: #2c3e50;
+            --text-muted: #546e7a;
+            
+            --card-inner-bg: rgba(255,255,255,0.7);
+            --input-bg: rgba(255,255,255,0.5);
+            
+            --border-radius: 20px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --bg-grad-1: #051626;
+            --bg-grad-2: #0a2f4c;
+            --bg-grad-3: #112240;
+            
+            --glass-bg: rgba(17, 34, 64, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            
+            --text-main: #e6f1ff;
+            --text-muted: #8892b0;
+            
+            --card-inner-bg: rgba(10, 25, 47, 0.7);
+            --input-bg: rgba(255,255,255,0.05);
+        }
+
+        /* ================= GLOBAL STYLES ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3));
+            background-attachment: fixed;
+            background-size: 200% 200%;
+            animation: gradientBg 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* ================= LAYOUT ================= */
+        .app-container {
+            display: flex;
+            flex: 1;
+            padding-bottom: 70px; /* Space for bottom nav on mobile */
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ================= GLASSMORPHISM ================= */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: var(--glass-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+        }
+
+        /* ================= NAVIGATION ================= */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 15px;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+        body.dark-mode .nav-item.active { color: var(--accent); background: rgba(0,0,0,0.2); }
+
+        /* ================= HEADER & DASHBOARD ================= */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-info h1 { font-size: 24px; font-weight: 600; }
+        .user-info p { font-size: 14px; color: var(--text-muted); }
+        
+        .clock-container {
+            text-align: right;
+        }
+        .time { font-size: 28px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+        body.dark-mode .time { color: var(--accent); }
+        .date { font-size: 12px; color: var(--text-muted); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-inner-bg);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+        }
+        .bg-blue { background: linear-gradient(135deg, #1E88E5, #42A5F5); }
+        .bg-purple { background: linear-gradient(135deg, #8E24AA, #AB47BC); }
+        .bg-green { background: linear-gradient(135deg, var(--success), #4CAF50); }
+        .bg-orange { background: linear-gradient(135deg, var(--accent), #FFCA28); }
+
+        .stat-details h3 { font-size: 22px; margin: 0; line-height: 1; }
+        .stat-details p { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+        /* ================= FORMS & BUTTONS ================= */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            outline: none;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.1);
+        }
+
+        textarea { resize: vertical; min-height: 100px; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            background: var(--glass-bg);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary { background: var(--primary); color: white; border: none; }
+        .btn-success { background: var(--success); color: white; border: none; }
+        .btn-danger { background: var(--danger); color: white; border: none; }
+        
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-anim 600ms linear;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+        /* Checkbox */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .checkbox-wrapper input { width: auto; cursor: pointer; transform: scale(1.2); }
+
+        /* ================= SCHEDULE CARDS ================= */
+        .schedule-card {
+            background: var(--card-inner-bg);
+            border-radius: 15px;
+            padding: 0;
+            margin-bottom: 15px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+        }
+        
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.03);
+            border-bottom: 1px solid var(--glass-border);
+            font-weight: 600;
+        }
+        
+        .schedule-body { padding: 20px; }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--primary);
+            color: white;
+        }
+        
+        .card-done {
+            text-align: center;
+            padding: 30px;
+            color: var(--success);
+        }
+        .card-done i { font-size: 40px; margin-bottom: 10px; }
+
+        /* ================= TABLE ================= */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        th { font-weight: 600; background: rgba(0,0,0,0.02); }
+        .action-btns { display: flex; gap: 5px; }
+
+        /* ================= CALENDAR ================= */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+        .calendar-day-name { font-weight: 600; font-size: 12px; padding: 10px 0; }
+        .calendar-day {
+            padding: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .calendar-day:hover { background: rgba(0,0,0,0.05); }
+        .calendar-day.has-journal {
+            background: var(--success);
+            color: white;
+            font-weight: bold;
+        }
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+        }
+        .calendar-day.empty { visibility: hidden; }
+
+        /* ================= TOAST ================= */
+        #toast-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-left: 5px solid var(--success);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: var(--glass-shadow);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s forwards, fadeOut 0.3s forwards 3s;
+        }
+
+        /* ================= ANIMATIONS ================= */
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        .slide-up { animation: slideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+        /* Sections */
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* Header actions */
+        .header-actions { display: flex; gap: 10px; }
+        .icon-btn {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; color: var(--text-main); transition: var(--transition);
+        }
+        .icon-btn:hover { background: var(--primary); color: white; transform: rotate(15deg); }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: auto;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .modal-content {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            padding: 25px; border-radius: var(--border-radius); width: 90%; max-width: 500px;
+        }
+
+        /* Desktop Adjustments */
+        @media (min-width: 768px) {
+            .bottom-nav {
+                top: 0; left: 0; width: 80px; height: 100vh;
+                flex-direction: column; justify-content: flex-start; padding-top: 50px; gap: 30px;
+                border-top: none; border-right: 1px solid var(--glass-border);
+            }
+            .app-container { padding-bottom: 0; padding-left: 80px; }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .bottom-nav, .header-actions, .btn, .action-btns { display: none !important; }
+            body { background: white; color: black; }
+            .glass-panel { box-shadow: none; border: 1px solid #ccc; backdrop-filter: none; background: white; }
+            #history-section { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Navigation -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="switchSection('dashboard', this)">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('jadwal', this)">
+                <i class="fas fa-book-open"></i>
+                <span>Jadwal</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('riwayat', this)">
+                <i class="fas fa-history"></i>
+                <span>Riwayat</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('kalender', this)">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Kalender</span>
+            </div>
+            <div class="nav-item" onclick="switchSection('statistik', this)">
+                <i class="fas fa-chart-pie"></i>
+                <span>Statistik</span>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="print-area">
+            
+            <!-- Global Header -->
+            <div class="header-top fade-in">
+                <div class="user-info">
+                    <h1>Selamat Datang,</h1>
+                    <p id="guru-name">Bapak/Ibu Guru Hebat</p>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode"><i class="fas fa-moon" id="moon-icon"></i></button>
+                    <button class="icon-btn" onclick="installApp()" id="installBtn" style="display:none;" title="Install App"><i class="fas fa-download"></i></button>
+                </div>
+            </div>
+
+            <!-- ================= DASHBOARD SECTION ================= -->
+            <section id="dashboard" class="section active fade-in">
+                <div class="glass-panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div>
+                        <h2 style="font-size: 18px; margin-bottom: 5px;" id="current-day-date">Senin, 01 Jan 2026</h2>
+                        <div style="width: 100%; background: var(--glass-border); height: 8px; border-radius: 5px; margin-top: 10px; overflow: hidden;">
+                            <div id="progress-bar" style="height: 100%; width: 0%; background: var(--success); transition: width 0.5s;"></div>
+                        </div>
+                        <p style="font-size: 12px; margin-top: 5px; color: var(--text-muted);" id="progress-text">Progress hari ini: 0/0 selesai</p>
+                    </div>
+                    <div class="clock-container">
+                        <div class="time" id="digital-clock">00:00:00</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card slide-up" style="animation-delay: 0.1s;">
+                        <div class="stat-icon bg-blue"><i class="fas fa-book"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-total">0</h3>
+                            <p>Total Jurnal</p>
+                        </div>
+                    </div>
+                    <div class="stat-card slide-up" style="animation-delay: 0.2s;">
+                        <div class="stat-icon bg-purple"><i class="fas fa-laptop-code"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-tik">0</h3>
+                            <p>Total TIK</p>
+                        </div>
+                    </div>
+                    <div class="stat-card slide-up" style="animation-delay: 0.3s;">
+                        <div class="stat-icon bg-green"><i class="fas fa-quran"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-pai">0</h3>
+                            <p>Total PAI</p>
+                        </div>
+                    </div>
+                    <div class="stat-card slide-up" style="animation-delay: 0.4s;">
+                        <div class="stat-icon bg-orange"><i class="fas fa-running"></i></div>
+                        <div class="stat-details">
+                            <h3 id="stat-pjok">0</h3>
+                            <p>Total PJOK</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 15px;">Aksi Cepat</h3>
+                <div class="glass-panel" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="switchSection('jadwal', document.querySelectorAll('.nav-item')[1])"><i class="fas fa-pen"></i> Isi Jurnal Sekarang</button>
+                    <button class="btn" onclick="exportExcel()"><i class="fas fa-file-excel" style="color: green;"></i> Export Excel</button>
+                    <button class="btn" onclick="exportPDF()"><i class="fas fa-file-pdf" style="color: red;"></i> Export PDF</button>
+                </div>
+            </section>
+
+            <!-- ================= JADWAL SECTION ================= -->
+            <section id="jadwal" class="section fade-in">
+                <div class="glass-panel">
+                    <h2 style="margin-bottom: 5px;">Jadwal Mengajar</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Menampilkan jadwal untuk hari <strong id="schedule-day-label">Senin</strong>.</p>
+                    
+                    <div id="schedule-container">
+                        <!-- Jadwal cards will be injected here by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= RIWAYAT SECTION ================= -->
+            <section id="riwayat" class="section fade-in">
+                <div class="glass-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                        <h2>Riwayat Jurnal</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="search-input" placeholder="Cari mapel, kelas... (Ctrl+F)" style="width: 250px;">
+                            <button class="btn" onclick="showBackupRestore()"><i class="fas fa-database"></i> Backup</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Jam</th>
+                                    <th>Mapel</th>
+                                    <th>Kelas</th>
+                                    <th>Materi</th>
+                                    <th>Catatan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-body">
+                                <!-- Data will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= KALENDER SECTION ================= -->
+            <section id="kalender" class="section fade-in">
+                <div class="glass-panel">
+                    <div class="calendar-header">
+                        <button class="icon-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <h2 id="calendar-month-year">Agustus 2026</h2>
+                        <button class="icon-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid" id="calendar-days-name">
+                        <div class="calendar-day-name">Min</div>
+                        <div class="calendar-day-name">Sen</div>
+                        <div class="calendar-day-name">Sel</div>
+                        <div class="calendar-day-name">Rab</div>
+                        <div class="calendar-day-name">Kam</div>
+                        <div class="calendar-day-name">Jum</div>
+                        <div class="calendar-day-name">Sab</div>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid">
+                        <!-- Dates will be injected here -->
+                    </div>
+                </div>
+                <!-- Detail kalender -->
+                <div class="glass-panel" id="calendar-detail" style="display: none;">
+                    <h3 id="detail-date-label" style="margin-bottom: 15px;">Detail Jurnal</h3>
+                    <div id="detail-content"></div>
+                </div>
+            </section>
+
+            <!-- ================= STATISTIK SECTION ================= -->
+            <section id="statistik" class="section fade-in">
+                <div class="glass-panel">
+                    <h2>Statistik Mengajar</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Analisis data jurnal Anda bulan ini.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="glass-panel" style="background: var(--card-inner-bg);">
+                            <h3 style="font-size: 14px; text-align: center; margin-bottom: 10px;">Per Mata Pelajaran</h3>
+                            <canvas id="mapelChart" height="200"></canvas>
+                        </div>
+                        <div class="glass-panel" style="background: var(--card-inner-bg);">
+                            <h3 style="font-size: 14px; text-align: center; margin-bottom: 10px;">Per Kelas</h3>
+                            <canvas id="kelasChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                Jurnal Mengajar Guru <br>
+                &copy; <span id="year">2026</span> | Made with ❤️ <br>
+                <small>Tersimpan secara lokal di perangkat ini (Offline Ready)</small>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Modal Edit -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content slide-up">
+            <h3 style="margin-bottom: 15px;">Edit Jurnal</h3>
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <label>Materi Pembelajaran</label>
+                <textarea id="edit-materi"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Catatan</label>
+                <textarea id="edit-catatan"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn" onclick="closeModal('editModal')">Batal</button>
+                <button class="btn btn-primary" onclick="saveEdit()">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Backup/Restore -->
+    <div class="modal-overlay" id="backupModal">
+        <div class="modal-content slide-up">
+            <h3 style="margin-bottom: 15px;">Backup & Restore Data</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Karena data tersimpan di browser, pastikan Anda rutin melakukan backup (Export JSON) untuk mencegah kehilangan data.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button class="btn btn-success" onclick="exportJSON()"><i class="fas fa-download"></i> Download Backup (JSON)</button>
+                
+                <div style="border-top: 1px solid var(--glass-border); margin: 10px 0;"></div>
+                
+                <label>Restore Data (Pilih file .json)</label>
+                <input type="file" id="restore-file" accept=".json" class="btn" style="padding: 5px;">
+                <button class="btn btn-primary" onclick="importJSON()"><i class="fas fa-upload"></i> Restore Data</button>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn" onclick="closeModal('backupModal')">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ================= JAVASCRIPT LOGIC ================= */
+        
+        // 1. DATA STATE & CONFIG
+        const DB_KEY = 'jurnal_mengajar_db';
+        let journals = JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        let mapelChartInstance = null;
+        let kelasChartInstance = null;
+        
+        const daysIndo = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        // Jadwal Mengajar (Hardcoded System)
+        const jadwalSistem = {
+            "Senin": [
+                { id: "sen1", jam: "08.40–09.20", mapel: "PJOK", kelas: "Kelas VIII Putra" },
+                { id: "sen2", jam: "09.20–10.00", mapel: "TIK", kelas: "Kelas VIII Putra" },
+                { id: "sen3", jam: "10.40–11.20", mapel: "TIK", kelas: "Kelas IX Putri" },
+                { id: "sen4", jam: "11.20–12.00", mapel: "PAI", kelas: "Kelas IX Putri" }
+            ],
+            "Selasa": [
+                { id: "sel1", jam: "08.40–09.20", mapel: "PJOK", kelas: "Kelas IX Putra" },
+                { id: "sel2", jam: "10.40–11.20", mapel: "TIK", kelas: "Kelas IX Putra" },
+                { id: "sel3", jam: "11.20–12.00", mapel: "PAI", kelas: "Kelas IX Putra" }
+            ],
+            "Rabu": [
+                { id: "rab1", jam: "08.40–09.20", mapel: "PJOK", kelas: "Kelas VII Putra" },
+                { id: "rab2", jam: "09.20–10.00", mapel: "PAI", kelas: "Kelas VIII Putra" },
+                { id: "rab3", jam: "10.40–11.20", mapel: "TIK", kelas: "Kelas VIII Putri" },
+                { id: "rab4", jam: "11.20–12.00", mapel: "PAI", kelas: "Kelas VIII Putri" }
+            ],
+            "Kamis": [
+                { id: "kam1", jam: "08.40–09.20", mapel: "PAI", kelas: "Kelas VII Putra" },
+                { id: "kam2", jam: "09.20–10.00", mapel: "TIK", kelas: "Kelas VII Putra" },
+                { id: "kam3", jam: "10.40–11.20", mapel: "PAI", kelas: "Kelas VII Putri" },
+                { id: "kam4", jam: "11.20–12.00", mapel: "TIK", kelas: "Kelas VII Putri" }
+            ],
+            "Jumat": [],
+            "Sabtu": [],
+            "Minggu": []
+        };
+
+        // 2. INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year').innerText = new Date().getFullYear();
+            checkTheme();
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Auto save draft binding to textareas
+            bindAutoSaveDraft();
+
+            // Initial Renders
+            renderDashboardStats();
+            renderJadwalHariIni();
+            renderHistoryTable();
+            renderCalendar();
+            
+            // Shortcuts
+            setupShortcuts();
+            
+            // PWA Setup
+            setupPWA();
+        });
+
+        // 3. UTILITIES & UI HELPERS
+        function saveToStorage() {
+            localStorage.setItem(DB_KEY, JSON.stringify(journals));
+            renderDashboardStats();
+            renderHistoryTable();
+            renderCalendar();
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            if (type !== 'success') {
+                toast.style.borderLeftColor = 'var(--danger)';
+            }
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+
+        function switchSection(sectionId, navElement) {
+            // Add ripple
+            addRipple(navElement);
+            
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            navElement.classList.add('active');
+            
+            if(sectionId === 'statistik') {
+                setTimeout(initCharts, 100); // delay to ensure canvas is visible
+            }
+        }
+
+        function addRipple(el) {
+            const circle = document.createElement("span");
+            const diameter = Math.max(el.clientWidth, el.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `0px`;
+            circle.style.top = `0px`;
+            circle.classList.add("ripple");
+            const ripple = el.getElementsByClassName("ripple")[0];
+            if (ripple) { ripple.remove(); }
+            el.appendChild(circle);
+        }
+
+        // Dark Mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('moon-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            if (document.getElementById('statistik').classList.contains('active')) {
+                initCharts(); // Re-render charts for color update
+            }
+        }
+
+        function checkTheme() {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('moon-icon').className = 'fas fa-sun';
+            }
+        }
+
+        // Clock & Date
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('digital-clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+            const dayName = daysIndo[now.getDay()];
+            const dateStr = `${dayName}, ${String(now.getDate()).padStart(2, '0')} ${monthsIndo[now.getMonth()]} ${now.getFullYear()}`;
+            document.getElementById('current-day-date').innerText = dateStr;
+        }
+
+        function getTodayDateString() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        // 4. CORE FEATURES: JADWAL & MENGISI JURNAL
+        function renderJadwalHariIni() {
+            const now = new Date();
+            const dayName = daysIndo[now.getDay()];
+            document.getElementById('schedule-day-label').innerText = dayName;
+            
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = '';
+            
+            const jadwalHariIni = jadwalSistem[dayName];
+            const todayStr = getTodayDateString();
+            
+            let totalJadwal = jadwalHariIni.length;
+            let selesai = 0;
+
+            if (totalJadwal === 0) {
+                container.innerHTML = `<div class="glass-panel" style="text-align:center;"><p>Tidak ada jadwal mengajar hari ini. Selamat beristirahat! ☕</p></div>`;
+                updateProgress(0, 0);
+                return;
+            }
+
+            jadwalHariIni.forEach((jadwal, index) => {
+                // Check if already filled today
+                const isFilled = journals.find(j => j.date === todayStr && j.jadwalId === jadwal.id);
+                
+                const delay = index * 0.1;
+                let html = '';
+
+                if (isFilled) {
+                    selesai++;
+                    html = `
+                    <div class="schedule-card slide-up" style="animation-delay: ${delay}s">
+                        <div class="schedule-header">
+                            <div><i class="fas fa-book"></i> ${jadwal.mapel}</div>
+                            <span class="badge" style="background:var(--success)"><i class="fas fa-check"></i> Selesai</span>
+                        </div>
+                        <div class="card-done">
+                            <i class="fas fa-check-circle"></i>
+                            <p><strong>${jadwal.kelas}</strong> (${jadwal.jam})</p>
+                            <p style="font-size:12px; margin-top:5px;">Jurnal telah diisi.</p>
+                        </div>
+                    </div>`;
+                } else {
+                    // Cek Draft
+                    const draftKey = `draft_${jadwal.id}`;
+                    const draftMateri = localStorage.getItem(draftKey + '_materi') || '';
+                    const draftCatatan = localStorage.getItem(draftKey + '_catatan') || '';
+
+                    html = `
+                    <div class="schedule-card slide-up" style="animation-delay: ${delay}s" id="card-${jadwal.id}">
+                        <div class="schedule-header">
+                            <div>📖 ${jadwal.mapel} - ${jadwal.kelas}</div>
+                            <div style="font-size:12px; color:var(--primary);"><i class="far fa-clock"></i> ${jadwal.jam}</div>
+                        </div>
+                        <div class="schedule-body">
+                            <div class="form-group">
+                                <label>Materi Pembelajaran *</label>
+                                <textarea id="materi-${jadwal.id}" class="draft-input" data-id="${jadwal.id}" placeholder="Ketik materi yang diajarkan...">${draftMateri}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Catatan (Opsional)</label>
+                                <textarea id="catatan-${jadwal.id}" class="draft-input" data-id="${jadwal.id}" placeholder="Kondisi kelas, siswa absen, dll...">${draftCatatan}</textarea>
+                            </div>
+                            <div class="form-group checkbox-wrapper">
+                                <input type="checkbox" id="check-${jadwal.id}">
+                                <label for="check-${jadwal.id}" style="margin:0; font-weight:normal;">Pertemuan Terlaksana Sesuai Jadwal</label>
+                            </div>
+                            <button class="btn btn-primary" style="width:100%" onclick="simpanJurnal('${jadwal.id}', '${jadwal.mapel}', '${jadwal.kelas}', '${jadwal.jam}')">
+                                <i class="fas fa-save"></i> Simpan Jurnal
+                            </button>
+                        </div>
+                    </div>`;
+                }
+                container.innerHTML += html;
+            });
+
+            updateProgress(selesai, totalJadwal);
+            bindAutoSaveDraft(); // Rebind due to innerHTML
+        }
+
+        function updateProgress(selesai, total) {
+            const pct = total === 0 ? 0 : (selesai / total) * 100;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            document.getElementById('progress-text').innerText = `Progress hari ini: ${selesai}/${total} selesai`;
+        }
+
+        function bindAutoSaveDraft() {
+            document.querySelectorAll('.draft-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const id = this.getAttribute('data-id');
+                    const isMateri = this.id.startsWith('materi');
+                    localStorage.setItem(`draft_${id}_${isMateri ? 'materi' : 'catatan'}`, this.value);
+                });
+            });
+        }
+
+        function simpanJurnal(id, mapel, kelas, jam) {
+            const materi = document.getElementById(`materi-${id}`).value.trim();
+            const catatan = document.getElementById(`catatan-${id}`).value.trim();
+            const terlaksana = document.getElementById(`check-${id}`).checked;
+
+            if (!materi) {
+                showToast('Materi pembelajaran wajib diisi!', 'error');
+                return;
+            }
+            if (!terlaksana) {
+                if(!confirm('Anda belum mencentang "Pertemuan Terlaksana". Tetap simpan?')) return;
+            }
+
+            const now = new Date();
+            const dayName = daysIndo[now.getDay()];
+            
+            const newJurnal = {
+                id: Date.now().toString(),
+                jadwalId: id,
+                date: getTodayDateString(),
+                hari: dayName,
+                jam: jam,
+                mapel: mapel,
+                kelas: kelas,
+                materi: materi,
+                catatan: catatan,
+                timestamp: now.getTime()
+            };
+
+            journals.push(newJurnal);
+            saveToStorage();
+            
+            // Clear draft
+            localStorage.removeItem(`draft_${id}_materi`);
+            localStorage.removeItem(`draft_${id}_catatan`);
+
+            showToast('Jurnal berhasil disimpan!');
+            renderJadwalHariIni(); // Re-render to show Done card
+        }
+
+        // 5. RIWAYAT & SEARCH
+        function renderHistoryTable(data = journals) {
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = '';
+            
+            // Sort by latest
+            const sorted = [...data].sort((a, b) => b.timestamp - a.timestamp);
+
+            if (sorted.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">Belum ada data jurnal.</td></tr>`;
+                return;
+            }
+
+            sorted.forEach(j => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${j.date} <br><small>${j.hari}</small></td>
+                    <td>${j.jam}</td>
+                    <td><span class="badge">${j.mapel}</span></td>
+                    <td>${j.kelas}</td>
+                    <td>${j.materi.length > 50 ? j.materi.substring(0,50)+'...' : j.materi}</td>
+                    <td>${j.catatan || '-'}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-primary" style="padding: 5px 10px;" onclick="openEditModal('${j.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 5px 10px;" onclick="hapusJurnal('${j.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Search logic
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const filtered = journals.filter(j => 
+                j.mapel.toLowerCase().includes(term) || 
+                j.kelas.toLowerCase().includes(term) ||
+                j.date.includes(term) ||
+                j.materi.toLowerCase().includes(term)
+            );
+            renderHistoryTable(filtered);
+        });
+
+        // Hapus
+        function hapusJurnal(id) {
+            if (confirm('Yakin ingin menghapus catatan jurnal ini?')) {
+                journals = journals.filter(j => j.id !== id);
+                saveToStorage();
+                showToast('Jurnal dihapus.');
+                renderJadwalHariIni(); // In case today's journal was deleted
+            }
+        }
+
+        // Edit
+        function openEditModal(id) {
+            const j = journals.find(x => x.id === id);
+            if(j) {
+                document.getElementById('edit-id').value = j.id;
+                document.getElementById('edit-materi').value = j.materi;
+                document.getElementById('edit-catatan').value = j.catatan;
+                document.getElementById('editModal').style.display = 'flex';
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function saveEdit() {
+            const id = document.getElementById('edit-id').value;
+            const materi = document.getElementById('edit-materi').value.trim();
+            const catatan = document.getElementById('edit-catatan').value.trim();
+            
+            if(!materi) { showToast('Materi tidak boleh kosong!', 'error'); return; }
+
+            const index = journals.findIndex(j => j.id === id);
+            if(index !== -1) {
+                journals[index].materi = materi;
+                journals[index].catatan = catatan;
+                saveToStorage();
+                closeModal('editModal');
+                showToast('Perubahan disimpan.');
+            }
+        }
+
+        // 6. DASHBOARD STATS
+        function renderDashboardStats() {
+            document.getElementById('stat-total').innerText = journals.length;
+            document.getElementById('stat-tik').innerText = journals.filter(j => j.mapel === 'TIK').length;
+            document.getElementById('stat-pai').innerText = journals.filter(j => j.mapel === 'PAI').length;
+            document.getElementById('stat-pjok').innerText = journals.filter(j => j.mapel === 'PJOK').length;
+        }
+
+        // 7. CALENDAR
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            document.getElementById('calendar-month-year').innerText = `${monthsIndo[currentMonth]} ${currentYear}`;
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0 is Sunday
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            const today = new Date();
+            
+            // Extract dates from journals
+            const journalDates = journals.map(j => j.date);
+
+            // Empty slots for previous month
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div class="calendar-day empty"></div>`;
+            }
+
+            // Days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const d = String(i).padStart(2, '0');
+                const m = String(currentMonth + 1).padStart(2, '0');
+                const dateStr = `${currentYear}-${m}-${d}`;
+                
+                let classes = 'calendar-day';
+                if (today.getDate() === i && today.getMonth() === currentMonth && today.getFullYear() === currentYear) {
+                    classes += ' today';
+                }
+                
+                const hasJurnal = journalDates.includes(dateStr);
+                if (hasJurnal) classes += ' has-journal';
+
+                grid.innerHTML += `<div class="${classes}" onclick="showCalendarDetail('${dateStr}')">${i}</div>`;
+            }
+        }
+
+        function changeMonth(dir) {
+            currentMonth += dir;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar();
+            document.getElementById('calendar-detail').style.display = 'none';
+        }
+
+        function showCalendarDetail(dateStr) {
+            const d = new Date(dateStr);
+            document.getElementById('detail-date-label').innerText = `Jurnal ${d.getDate()} ${monthsIndo[d.getMonth()]} ${d.getFullYear()}`;
+            
+            const list = journals.filter(j => j.date === dateStr);
+            const content = document.getElementById('detail-content');
+            
+            if(list.length === 0) {
+                content.innerHTML = `<p style="font-size:14px; color:var(--text-muted);">Tidak ada aktivitas mengajar pada tanggal ini.</p>`;
+            } else {
+                let html = '<ul style="list-style:none; padding:0; font-size:14px;">';
+                list.forEach(j => {
+                    html += `
+                    <li style="background:var(--card-inner-bg); padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid var(--glass-border);">
+                        <strong>${j.mapel} - ${j.kelas}</strong> (${j.jam})<br>
+                        <i class="fas fa-book-open" style="color:var(--primary); width:20px;"></i> ${j.materi}
+                    </li>`;
+                });
+                html += '</ul>';
+                content.innerHTML = html;
+            }
+            document.getElementById('calendar-detail').style.display = 'block';
+            document.getElementById('calendar-detail').scrollIntoView({behavior: "smooth"});
+        }
+
+        // 8. STATISTIK CHART.JS
+        function initCharts() {
+            if(journals.length === 0) return; // don't draw empty
+
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#e6f1ff' : '#2c3e50';
+
+            Chart.defaults.color = textColor;
+
+            // Mapel Data
+            const mapelCounts = {'TIK':0, 'PAI':0, 'PJOK':0};
+            journals.forEach(j => { if(mapelCounts[j.mapel] !== undefined) mapelCounts[j.mapel]++; });
+
+            const ctxMapel = document.getElementById('mapelChart').getContext('2d');
+            if(mapelChartInstance) mapelChartInstance.destroy();
+            mapelChartInstance = new Chart(ctxMapel, {
+                type: 'doughnut',
+                data: {
+                    labels: ['TIK', 'PAI', 'PJOK'],
+                    datasets: [{
+                        data: [mapelCounts['TIK'], mapelCounts['PAI'], mapelCounts['PJOK']],
+                        backgroundColor: ['#1E88E5', '#4CAF50', '#F4B400'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // Kelas Data
+            const kelasCounts = {};
+            journals.forEach(j => {
+                kelasCounts[j.kelas] = (kelasCounts[j.kelas] || 0) + 1;
+            });
+            
+            const ctxKelas = document.getElementById('kelasChart').getContext('2d');
+            if(kelasChartInstance) kelasChartInstance.destroy();
+            kelasChartInstance = new Chart(ctxKelas, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(kelasCounts),
+                    datasets: [{
+                        label: 'Total Mengajar',
+                        data: Object.values(kelasCounts),
+                        backgroundColor: '#0F4C81',
+                        borderRadius: 5
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        // 9. EXPORT & BACKUP
+        function exportExcel() {
+            if (journals.length === 0) { showToast('Tidak ada data untuk diexport', 'error'); return; }
+            
+            // Format data for excel
+            const dataToExport = journals.map(j => ({
+                'Tanggal': j.date,
+                'Hari': j.hari,
+                'Jam': j.jam,
+                'Mata Pelajaran': j.mapel,
+                'Kelas': j.kelas,
+                'Materi Pembelajaran': j.materi,
+                'Catatan': j.catatan || '-'
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Jurnal Mengajar");
+            XLSX.writeFile(wb, `Jurnal_Mengajar_${getTodayDateString()}.xlsx`);
+            showToast('Excel berhasil didownload');
+        }
+
+        function exportPDF() {
+            // Using window.print for a clean, built-in PDF export via browser
+            // To make it look good, we switch to history tab and trigger print
+            switchSection('riwayat', document.querySelectorAll('.nav-item')[2]);
+            setTimeout(() => {
+                window.print();
+            }, 500);
+            
+            /* Alternative with html2pdf:
+            const element = document.getElementById('history-table');
+            html2pdf().from(element).save('Jurnal_Mengajar.pdf');
+            */
+        }
+
+        function showBackupRestore() {
+            document.getElementById('backupModal').style.display = 'flex';
+        }
+
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(journals));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Backup_Jurnal_${getTodayDateString()}.json`);
+            dlAnchorElem.click();
+            showToast('File backup didownload');
+        }
+
+        function importJSON() {
+            const fileInput = document.getElementById('restore-file');
+            const file = fileInput.files[0];
+            if (!file) { showToast('Pilih file JSON terlebih dahulu', 'error'); return; }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        // Merge or overwrite? Let's overwrite and append unique
+                        const currentIds = new Set(journals.map(j => j.id));
+                        let added = 0;
+                        importedData.forEach(item => {
+                            if (item.id && !currentIds.has(item.id)) {
+                                journals.push(item);
+                                added++;
+                            }
+                        });
+                        saveToStorage();
+                        closeModal('backupModal');
+                        showToast(`Restore berhasil. ${added} data baru ditambahkan.`);
+                    } else {
+                        throw new Error("Format salah");
+                    }
+                } catch (err) {
+                    showToast('Gagal memproses file JSON', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 10. SHORTCUTS & PWA
+        function setupShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Ctrl + F = Search in history
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    switchSection('riwayat', document.querySelectorAll('.nav-item')[2]);
+                    document.getElementById('search-input').focus();
+                }
+                // Ctrl + S = Not strictly bound to one save, but can prevent default save page dialog
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    showToast('Auto-save selalu aktif saat Anda mengetik di form.', 'success');
+                }
+            });
+        }
+
+        // Fake PWA Installation logic (Browser handles real prompt if manifest exists)
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'flex';
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installBtn').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                showToast('Aplikasi dapat diinstal melalui menu browser (Add to Home Screen).');
+            }
+        }
+
+        // Inline Service Worker for Offline Capabilities (Minimal implementation for single file)
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'jurnal-guru-v1';
+                self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                self.addEventListener('fetch', e => {
+                    // Simple pass-through, rely on browser cache for CDNs
+                    e.respondWith(fetch(e.request).catch(() => new Response('Offline mode active.')));
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl).then(() => console.log('Offline SW registered'));
+        }
+
+    </script>
+</body>
+</html>
+
