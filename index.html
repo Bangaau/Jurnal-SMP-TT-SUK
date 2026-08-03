@@ -125,7 +125,6 @@
         }
 
         .glass-panel:hover {
-            transform: translateY(-2px);
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
         }
 
@@ -157,6 +156,8 @@
             cursor: pointer;
             padding: 5px 15px;
             border-radius: 15px;
+            position: relative;
+            overflow: hidden;
         }
 
         .nav-item i {
@@ -166,10 +167,10 @@
 
         .nav-item.active {
             color: var(--primary);
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.05);
+            background: rgba(255,255,255,0.3);
+            font-weight: 600;
         }
-        body.dark-mode .nav-item.active { color: var(--accent); background: rgba(0,0,0,0.2); }
+        body.dark-mode .nav-item.active { color: var(--accent); background: rgba(0,0,0,0.3); }
 
         /* ================= HEADER & DASHBOARD ================= */
         .header-top {
@@ -192,7 +193,7 @@
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -205,7 +206,10 @@
             align-items: center;
             gap: 15px;
             border: 1px solid var(--glass-border);
+            transition: var(--transition);
         }
+        
+        .stat-card:hover { transform: translateY(-3px); }
 
         .stat-icon {
             width: 45px;
@@ -216,6 +220,7 @@
             align-items: center;
             font-size: 20px;
             color: white;
+            flex-shrink: 0;
         }
         .bg-blue { background: linear-gradient(135deg, #1E88E5, #42A5F5); }
         .bg-purple { background: linear-gradient(135deg, #8E24AA, #AB47BC); }
@@ -223,12 +228,10 @@
         .bg-orange { background: linear-gradient(135deg, var(--accent), #FFCA28); }
 
         .stat-details h3 { font-size: 22px; margin: 0; line-height: 1; }
-        .stat-details p { font-size: 12px; color: var(--text-muted); margin: 0; }
+        .stat-details p { font-size: 11px; color: var(--text-muted); margin: 0; margin-top: 3px; }
 
         /* ================= FORMS & BUTTONS ================= */
-        .form-group {
-            margin-bottom: 15px;
-        }
+        .form-group { margin-bottom: 15px; }
         
         label {
             display: block;
@@ -292,12 +295,7 @@
         @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
 
         /* Checkbox */
-        .checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .checkbox-wrapper input { width: auto; cursor: pointer; transform: scale(1.2); }
 
         /* ================= SCHEDULE CARDS ================= */
@@ -319,6 +317,7 @@
             border-bottom: 1px solid var(--glass-border);
             font-weight: 600;
         }
+        body.dark-mode .schedule-header { background: rgba(255,255,255,0.05); }
         
         .schedule-body { padding: 20px; }
         
@@ -331,83 +330,39 @@
             color: white;
         }
         
-        .card-done {
-            text-align: center;
-            padding: 30px;
-            color: var(--success);
-        }
+        .card-done { text-align: center; padding: 30px; color: var(--success); }
         .card-done i { font-size: 40px; margin-bottom: 10px; }
 
         /* ================= TABLE ================= */
-        .table-responsive {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--glass-border);
-        }
-        th { font-weight: 600; background: rgba(0,0,0,0.02); }
+        .table-responsive { overflow-x: auto; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 600px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        th { font-weight: 600; background: rgba(0,0,0,0.05); }
+        body.dark-mode th { background: rgba(255,255,255,0.05); }
         .action-btns { display: flex; gap: 5px; }
 
         /* ================= CALENDAR ================= */
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
-        }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .calendar-day-name { font-weight: 600; font-size: 12px; padding: 10px 0; }
         .calendar-day {
-            padding: 10px 0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 14px;
+            padding: 10px 0; border-radius: 10px; cursor: pointer; transition: var(--transition); font-size: 14px;
         }
-        .calendar-day:hover { background: rgba(0,0,0,0.05); }
-        .calendar-day.has-journal {
-            background: var(--success);
-            color: white;
-            font-weight: bold;
-        }
-        .calendar-day.today {
-            border: 2px solid var(--primary);
-        }
+        .calendar-day:hover { background: rgba(0,0,0,0.1); }
+        body.dark-mode .calendar-day:hover { background: rgba(255,255,255,0.1); }
+        .calendar-day.has-journal { background: var(--success); color: white; font-weight: bold; }
+        .calendar-day.today { border: 2px solid var(--primary); }
         .calendar-day.empty { visibility: hidden; }
 
         /* ================= TOAST ================= */
         #toast-container {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            position: fixed; bottom: 80px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
         }
         .toast {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-left: 5px solid var(--success);
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: var(--glass-shadow);
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: var(--glass-bg); backdrop-filter: blur(15px); border-left: 5px solid var(--success);
+            padding: 15px 20px; border-radius: 10px; box-shadow: var(--glass-shadow); color: var(--text-main);
+            display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500;
             animation: slideInRight 0.3s forwards, fadeOut 0.3s forwards 3s;
         }
 
@@ -428,40 +383,35 @@
         .header-actions { display: flex; gap: 10px; }
         .icon-btn {
             background: var(--glass-bg); border: 1px solid var(--glass-border);
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
+            width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
             cursor: pointer; color: var(--text-main); transition: var(--transition);
         }
         .icon-btn:hover { background: var(--primary); color: white; transform: rotate(15deg); }
 
         /* Footer */
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: auto;
-        }
+        footer { text-align: center; padding: 20px; font-size: 12px; color: var(--text-muted); margin-top: auto; }
 
         /* Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center; z-index: 2000;
+            display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px;
         }
         .modal-content {
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            padding: 25px; border-radius: var(--border-radius); width: 90%; max-width: 500px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+            padding: 25px; border-radius: var(--border-radius); width: 100%; max-width: 500px;
         }
 
         /* Desktop Adjustments */
         @media (min-width: 768px) {
             .bottom-nav {
-                top: 0; left: 0; width: 80px; height: 100vh;
-                flex-direction: column; justify-content: flex-start; padding-top: 50px; gap: 30px;
+                top: 0; left: 0; width: 90px; height: 100vh;
+                flex-direction: column; justify-content: flex-start; padding-top: 50px; gap: 20px;
                 border-top: none; border-right: 1px solid var(--glass-border);
             }
-            .app-container { padding-bottom: 0; padding-left: 80px; }
+            .app-container { padding-bottom: 0; padding-left: 90px; }
+            .nav-item { padding: 15px 10px; width: 70%; text-align: center; }
+            #toast-container { bottom: 30px; }
         }
         
         /* Print Styles */
@@ -475,30 +425,23 @@
 </head>
 <body>
 
-    <!-- App Container -->
     <div class="app-container">
-        
         <!-- Navigation -->
         <nav class="bottom-nav">
             <div class="nav-item active" onclick="switchSection('dashboard', this)">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
+                <i class="fas fa-home"></i><span>Home</span>
             </div>
             <div class="nav-item" onclick="switchSection('jadwal', this)">
-                <i class="fas fa-book-open"></i>
-                <span>Jadwal</span>
+                <i class="fas fa-book-open"></i><span>Jadwal</span>
             </div>
             <div class="nav-item" onclick="switchSection('riwayat', this)">
-                <i class="fas fa-history"></i>
-                <span>Riwayat</span>
+                <i class="fas fa-history"></i><span>Riwayat</span>
             </div>
             <div class="nav-item" onclick="switchSection('kalender', this)">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Kalender</span>
+                <i class="fas fa-calendar-alt"></i><span>Kalender</span>
             </div>
             <div class="nav-item" onclick="switchSection('statistik', this)">
-                <i class="fas fa-chart-pie"></i>
-                <span>Statistik</span>
+                <i class="fas fa-chart-pie"></i><span>Statistik</span>
             </div>
         </nav>
 
@@ -563,11 +506,11 @@
                     </div>
                 </div>
                 
-                <h3 style="margin-bottom: 15px;">Aksi Cepat</h3>
+                <h3 style="margin-bottom: 15px; font-size: 16px;">Aksi Cepat</h3>
                 <div class="glass-panel" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="switchSection('jadwal', document.querySelectorAll('.nav-item')[1])"><i class="fas fa-pen"></i> Isi Jurnal Sekarang</button>
-                    <button class="btn" onclick="exportExcel()"><i class="fas fa-file-excel" style="color: green;"></i> Export Excel</button>
-                    <button class="btn" onclick="exportPDF()"><i class="fas fa-file-pdf" style="color: red;"></i> Export PDF</button>
+                    <button class="btn btn-primary" onclick="switchSection('jadwal', document.querySelectorAll('.nav-item')[1])"><i class="fas fa-pen"></i> Isi Jurnal</button>
+                    <button class="btn" onclick="exportExcel()"><i class="fas fa-file-excel" style="color: #2E7D32;"></i> Excel</button>
+                    <button class="btn" onclick="exportPDF()"><i class="fas fa-file-pdf" style="color: #d32f2f;"></i> PDF</button>
                 </div>
             </section>
 
@@ -588,9 +531,9 @@
                 <div class="glass-panel">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
                         <h2>Riwayat Jurnal</h2>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="search-input" placeholder="Cari mapel, kelas... (Ctrl+F)" style="width: 250px;">
-                            <button class="btn" onclick="showBackupRestore()"><i class="fas fa-database"></i> Backup</button>
+                        <div style="display: flex; gap: 10px; width: 100%; max-width: 350px;">
+                            <input type="text" id="search-input" placeholder="Cari mapel, kelas... (Ctrl+F)" style="flex: 1;">
+                            <button class="btn" onclick="showBackupRestore()" title="Backup/Restore"><i class="fas fa-database"></i></button>
                         </div>
                     </div>
 
@@ -643,20 +586,29 @@
                 </div>
             </section>
 
-            <!-- ================= STATISTIK SECTION ================= -->
+            <!-- ================= STATISTIK SECTION (FIXED UI/UX) ================= -->
             <section id="statistik" class="section fade-in">
                 <div class="glass-panel">
-                    <h2>Statistik Mengajar</h2>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Analisis data jurnal Anda bulan ini.</p>
+                    <h2 style="margin-bottom: 5px;">Statistik Mengajar</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Analisis data jurnal Anda secara keseluruhan.</p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div class="glass-panel" style="background: var(--card-inner-bg);">
-                            <h3 style="font-size: 14px; text-align: center; margin-bottom: 10px;">Per Mata Pelajaran</h3>
-                            <canvas id="mapelChart" height="200"></canvas>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <!-- Kontainer Chart 1 -->
+                        <div class="glass-panel" style="background: var(--card-inner-bg); padding: 20px; margin-bottom: 0;">
+                            <h3 style="font-size: 15px; text-align: center; margin-bottom: 15px; font-weight: 600;">Per Mata Pelajaran</h3>
+                            <!-- BATASAN TINGGI (HEIGHT) DITAMBAHKAN DI SINI AGAR TIDAK MELAR -->
+                            <div style="position: relative; height: 220px; width: 100%;">
+                                <canvas id="mapelChart"></canvas>
+                            </div>
                         </div>
-                        <div class="glass-panel" style="background: var(--card-inner-bg);">
-                            <h3 style="font-size: 14px; text-align: center; margin-bottom: 10px;">Per Kelas</h3>
-                            <canvas id="kelasChart" height="200"></canvas>
+                        
+                        <!-- Kontainer Chart 2 -->
+                        <div class="glass-panel" style="background: var(--card-inner-bg); padding: 20px; margin-bottom: 0;">
+                            <h3 style="font-size: 15px; text-align: center; margin-bottom: 15px; font-weight: 600;">Per Kelas</h3>
+                            <!-- BATASAN TINGGI (HEIGHT) DITAMBAHKAN DI SINI AGAR TIDAK MELAR -->
+                            <div style="position: relative; height: 220px; width: 100%;">
+                                <canvas id="kelasChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -665,7 +617,7 @@
             <footer>
                 Jurnal Mengajar Guru <br>
                 &copy; <span id="year">2026</span> | Made with ❤️ <br>
-                <small>Tersimpan secara lokal di perangkat ini (Offline Ready)</small>
+                <small>Tersimpan secara lokal (Offline Ready)</small>
             </footer>
         </main>
     </div>
@@ -697,16 +649,16 @@
     <div class="modal-overlay" id="backupModal">
         <div class="modal-content slide-up">
             <h3 style="margin-bottom: 15px;">Backup & Restore Data</h3>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Karena data tersimpan di browser, pastikan Anda rutin melakukan backup (Export JSON) untuk mencegah kehilangan data.</p>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Karena data tersimpan di browser, pastikan Anda rutin melakukan backup (Export JSON) untuk mencegah kehilangan data jika browser dibersihkan.</p>
             
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 <button class="btn btn-success" onclick="exportJSON()"><i class="fas fa-download"></i> Download Backup (JSON)</button>
                 
-                <div style="border-top: 1px solid var(--glass-border); margin: 10px 0;"></div>
+                <div style="border-top: 1px solid var(--glass-border); margin: 5px 0;"></div>
                 
-                <label>Restore Data (Pilih file .json)</label>
-                <input type="file" id="restore-file" accept=".json" class="btn" style="padding: 5px;">
-                <button class="btn btn-primary" onclick="importJSON()"><i class="fas fa-upload"></i> Restore Data</button>
+                <label style="margin-bottom: 0;">Restore Data (Pilih file .json)</label>
+                <input type="file" id="restore-file" accept=".json" class="btn" style="padding: 8px;">
+                <button class="btn btn-primary" onclick="importJSON()"><i class="fas fa-upload"></i> Jalankan Restore</button>
             </div>
             
             <div style="margin-top: 20px; text-align: right;">
@@ -727,7 +679,7 @@
         const daysIndo = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         const monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-        // Jadwal Mengajar (Hardcoded System)
+        // Jadwal Mengajar Sistem
         const jadwalSistem = {
             "Senin": [
                 { id: "sen1", jam: "08.40–09.20", mapel: "PJOK", kelas: "Kelas VIII Putra" },
@@ -764,19 +716,12 @@
             updateClock();
             setInterval(updateClock, 1000);
             
-            // Auto save draft binding to textareas
             bindAutoSaveDraft();
-
-            // Initial Renders
             renderDashboardStats();
             renderJadwalHariIni();
             renderHistoryTable();
             renderCalendar();
-            
-            // Shortcuts
             setupShortcuts();
-            
-            // PWA Setup
             setupPWA();
         });
 
@@ -786,22 +731,22 @@
             renderDashboardStats();
             renderHistoryTable();
             renderCalendar();
+            if(document.getElementById('statistik').classList.contains('active')) {
+                initCharts();
+            }
         }
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-            if (type !== 'success') {
-                toast.style.borderLeftColor = 'var(--danger)';
-            }
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> <span>${message}</span>`;
+            if (type !== 'success') toast.style.borderLeftColor = 'var(--danger)';
             container.appendChild(toast);
             setTimeout(() => { toast.remove(); }, 3500);
         }
 
         function switchSection(sectionId, navElement) {
-            // Add ripple
             addRipple(navElement);
             
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -810,8 +755,9 @@
             document.getElementById(sectionId).classList.add('active');
             navElement.classList.add('active');
             
+            // Re-render chart if switching to statistik tab to ensure correct width
             if(sectionId === 'statistik') {
-                setTimeout(initCharts, 100); // delay to ensure canvas is visible
+                setTimeout(initCharts, 100); 
             }
         }
 
@@ -824,7 +770,7 @@
             circle.style.top = `0px`;
             circle.classList.add("ripple");
             const ripple = el.getElementsByClassName("ripple")[0];
-            if (ripple) { ripple.remove(); }
+            if (ripple) ripple.remove();
             el.appendChild(circle);
         }
 
@@ -835,7 +781,7 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             document.getElementById('moon-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
             if (document.getElementById('statistik').classList.contains('active')) {
-                initCharts(); // Re-render charts for color update
+                initCharts(); // Update chart text/grid color on toggle
             }
         }
 
@@ -876,15 +822,13 @@
             let selesai = 0;
 
             if (totalJadwal === 0) {
-                container.innerHTML = `<div class="glass-panel" style="text-align:center;"><p>Tidak ada jadwal mengajar hari ini. Selamat beristirahat! ☕</p></div>`;
+                container.innerHTML = `<div class="glass-panel" style="text-align:center; padding: 40px 20px;"><i class="fas fa-mug-hot" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i><p>Tidak ada jadwal mengajar hari ini.<br>Selamat beristirahat!</p></div>`;
                 updateProgress(0, 0);
                 return;
             }
 
             jadwalHariIni.forEach((jadwal, index) => {
-                // Check if already filled today
                 const isFilled = journals.find(j => j.date === todayStr && j.jadwalId === jadwal.id);
-                
                 const delay = index * 0.1;
                 let html = '';
 
@@ -899,11 +843,10 @@
                         <div class="card-done">
                             <i class="fas fa-check-circle"></i>
                             <p><strong>${jadwal.kelas}</strong> (${jadwal.jam})</p>
-                            <p style="font-size:12px; margin-top:5px;">Jurnal telah diisi.</p>
+                            <p style="font-size:12px; margin-top:5px; color:var(--text-muted)">Jurnal telah terisi dan tersimpan.</p>
                         </div>
                     </div>`;
                 } else {
-                    // Cek Draft
                     const draftKey = `draft_${jadwal.id}`;
                     const draftMateri = localStorage.getItem(draftKey + '_materi') || '';
                     const draftCatatan = localStorage.getItem(draftKey + '_catatan') || '';
@@ -912,7 +855,7 @@
                     <div class="schedule-card slide-up" style="animation-delay: ${delay}s" id="card-${jadwal.id}">
                         <div class="schedule-header">
                             <div>📖 ${jadwal.mapel} - ${jadwal.kelas}</div>
-                            <div style="font-size:12px; color:var(--primary);"><i class="far fa-clock"></i> ${jadwal.jam}</div>
+                            <div style="font-size:12px; color:var(--primary); font-weight:bold;"><i class="far fa-clock"></i> ${jadwal.jam}</div>
                         </div>
                         <div class="schedule-body">
                             <div class="form-group">
@@ -921,11 +864,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Catatan (Opsional)</label>
-                                <textarea id="catatan-${jadwal.id}" class="draft-input" data-id="${jadwal.id}" placeholder="Kondisi kelas, siswa absen, dll...">${draftCatatan}</textarea>
+                                <textarea id="catatan-${jadwal.id}" class="draft-input" data-id="${jadwal.id}" placeholder="Kondisi kelas, siswa absen, dll..." style="min-height:60px;">${draftCatatan}</textarea>
                             </div>
                             <div class="form-group checkbox-wrapper">
                                 <input type="checkbox" id="check-${jadwal.id}">
-                                <label for="check-${jadwal.id}" style="margin:0; font-weight:normal;">Pertemuan Terlaksana Sesuai Jadwal</label>
+                                <label for="check-${jadwal.id}" style="margin:0; font-weight:normal;">Pertemuan Terlaksana</label>
                             </div>
                             <button class="btn btn-primary" style="width:100%" onclick="simpanJurnal('${jadwal.id}', '${jadwal.mapel}', '${jadwal.kelas}', '${jadwal.jam}')">
                                 <i class="fas fa-save"></i> Simpan Jurnal
@@ -937,7 +880,7 @@
             });
 
             updateProgress(selesai, totalJadwal);
-            bindAutoSaveDraft(); // Rebind due to innerHTML
+            bindAutoSaveDraft();
         }
 
         function updateProgress(selesai, total) {
@@ -988,12 +931,11 @@
             journals.push(newJurnal);
             saveToStorage();
             
-            // Clear draft
             localStorage.removeItem(`draft_${id}_materi`);
             localStorage.removeItem(`draft_${id}_catatan`);
 
             showToast('Jurnal berhasil disimpan!');
-            renderJadwalHariIni(); // Re-render to show Done card
+            renderJadwalHariIni(); 
         }
 
         // 5. RIWAYAT & SEARCH
@@ -1001,27 +943,26 @@
             const tbody = document.getElementById('history-body');
             tbody.innerHTML = '';
             
-            // Sort by latest
             const sorted = [...data].sort((a, b) => b.timestamp - a.timestamp);
 
             if (sorted.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">Belum ada data jurnal.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px;">Belum ada riwayat jurnal.</td></tr>`;
                 return;
             }
 
             sorted.forEach(j => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${j.date} <br><small>${j.hari}</small></td>
-                    <td>${j.jam}</td>
-                    <td><span class="badge">${j.mapel}</span></td>
-                    <td>${j.kelas}</td>
-                    <td>${j.materi.length > 50 ? j.materi.substring(0,50)+'...' : j.materi}</td>
+                    <td style="white-space:nowrap;">${j.date} <br><small style="color:var(--text-muted);">${j.hari}</small></td>
+                    <td style="white-space:nowrap;">${j.jam}</td>
+                    <td><span class="badge" style="background:var(--secondary)">${j.mapel}</span></td>
+                    <td style="white-space:nowrap; font-weight:500;">${j.kelas}</td>
+                    <td>${j.materi.length > 40 ? j.materi.substring(0,40)+'...' : j.materi}</td>
                     <td>${j.catatan || '-'}</td>
                     <td>
                         <div class="action-btns">
-                            <button class="btn btn-primary" style="padding: 5px 10px;" onclick="openEditModal('${j.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-danger" style="padding: 5px 10px;" onclick="hapusJurnal('${j.id}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-primary" style="padding: 6px 12px;" onclick="openEditModal('${j.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 6px 12px;" onclick="hapusJurnal('${j.id}')" title="Hapus"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 `;
@@ -1029,7 +970,6 @@
             });
         }
 
-        // Search logic
         document.getElementById('search-input').addEventListener('input', function(e) {
             const term = e.target.value.toLowerCase();
             const filtered = journals.filter(j => 
@@ -1041,17 +981,15 @@
             renderHistoryTable(filtered);
         });
 
-        // Hapus
         function hapusJurnal(id) {
             if (confirm('Yakin ingin menghapus catatan jurnal ini?')) {
                 journals = journals.filter(j => j.id !== id);
                 saveToStorage();
-                showToast('Jurnal dihapus.');
-                renderJadwalHariIni(); // In case today's journal was deleted
+                showToast('Jurnal telah dihapus.');
+                renderJadwalHariIni(); 
             }
         }
 
-        // Edit
         function openEditModal(id) {
             const j = journals.find(x => x.id === id);
             if(j) {
@@ -1079,7 +1017,7 @@
                 journals[index].catatan = catatan;
                 saveToStorage();
                 closeModal('editModal');
-                showToast('Perubahan disimpan.');
+                showToast('Perubahan berhasil disimpan.');
             }
         }
 
@@ -1100,20 +1038,15 @@
             grid.innerHTML = '';
             document.getElementById('calendar-month-year').innerText = `${monthsIndo[currentMonth]} ${currentYear}`;
             
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0 is Sunday
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            
             const today = new Date();
-            
-            // Extract dates from journals
             const journalDates = journals.map(j => j.date);
 
-            // Empty slots for previous month
             for (let i = 0; i < firstDay; i++) {
                 grid.innerHTML += `<div class="calendar-day empty"></div>`;
             }
 
-            // Days
             for (let i = 1; i <= daysInMonth; i++) {
                 const d = String(i).padStart(2, '0');
                 const m = String(currentMonth + 1).padStart(2, '0');
@@ -1124,8 +1057,7 @@
                     classes += ' today';
                 }
                 
-                const hasJurnal = journalDates.includes(dateStr);
-                if (hasJurnal) classes += ' has-journal';
+                if (journalDates.includes(dateStr)) classes += ' has-journal';
 
                 grid.innerHTML += `<div class="${classes}" onclick="showCalendarDetail('${dateStr}')">${i}</div>`;
             }
@@ -1141,37 +1073,45 @@
 
         function showCalendarDetail(dateStr) {
             const d = new Date(dateStr);
-            document.getElementById('detail-date-label').innerText = `Jurnal ${d.getDate()} ${monthsIndo[d.getMonth()]} ${d.getFullYear()}`;
+            document.getElementById('detail-date-label').innerText = `Aktivitas tgl ${d.getDate()} ${monthsIndo[d.getMonth()]} ${d.getFullYear()}`;
             
             const list = journals.filter(j => j.date === dateStr);
             const content = document.getElementById('detail-content');
             
             if(list.length === 0) {
-                content.innerHTML = `<p style="font-size:14px; color:var(--text-muted);">Tidak ada aktivitas mengajar pada tanggal ini.</p>`;
+                content.innerHTML = `<p style="font-size:14px; color:var(--text-muted); text-align:center; padding:15px;">Tidak ada catatan jurnal.</p>`;
             } else {
-                let html = '<ul style="list-style:none; padding:0; font-size:14px;">';
+                let html = '<div style="display:flex; flex-direction:column; gap:10px;">';
                 list.forEach(j => {
                     html += `
-                    <li style="background:var(--card-inner-bg); padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid var(--glass-border);">
-                        <strong>${j.mapel} - ${j.kelas}</strong> (${j.jam})<br>
-                        <i class="fas fa-book-open" style="color:var(--primary); width:20px;"></i> ${j.materi}
-                    </li>`;
+                    <div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:12px; border:1px solid var(--glass-border);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <strong style="color:var(--primary);">${j.mapel} - ${j.kelas}</strong>
+                            <span style="font-size:12px; color:var(--text-muted);"><i class="far fa-clock"></i> ${j.jam}</span>
+                        </div>
+                        <div style="font-size:13px; line-height:1.5;">${j.materi}</div>
+                    </div>`;
                 });
-                html += '</ul>';
+                html += '</div>';
                 content.innerHTML = html;
             }
             document.getElementById('calendar-detail').style.display = 'block';
-            document.getElementById('calendar-detail').scrollIntoView({behavior: "smooth"});
+            
+            setTimeout(() => {
+                document.getElementById('calendar-detail').scrollIntoView({behavior: "smooth", block: "nearest"});
+            }, 100);
         }
 
-        // 8. STATISTIK CHART.JS
+        // 8. STATISTIK CHART.JS (FIXED)
         function initCharts() {
-            if(journals.length === 0) return; // don't draw empty
+            if(journals.length === 0) return;
 
             const isDark = document.body.classList.contains('dark-mode');
             const textColor = isDark ? '#e6f1ff' : '#2c3e50';
+            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
 
             Chart.defaults.color = textColor;
+            Chart.defaults.font.family = "'Poppins', sans-serif";
 
             // Mapel Data
             const mapelCounts = {'TIK':0, 'PAI':0, 'PJOK':0};
@@ -1186,17 +1126,21 @@
                     datasets: [{
                         data: [mapelCounts['TIK'], mapelCounts['PAI'], mapelCounts['PJOK']],
                         backgroundColor: ['#1E88E5', '#4CAF50', '#F4B400'],
-                        borderWidth: 0
+                        borderWidth: isDark ? 2 : 0,
+                        borderColor: isDark ? '#112240' : '#fff'
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, // Penting agar mengisi kontainer
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } } },
+                    cutout: '65%'
+                }
             });
 
             // Kelas Data
             const kelasCounts = {};
-            journals.forEach(j => {
-                kelasCounts[j.kelas] = (kelasCounts[j.kelas] || 0) + 1;
-            });
+            journals.forEach(j => { kelasCounts[j.kelas] = (kelasCounts[j.kelas] || 0) + 1; });
             
             const ctxKelas = document.getElementById('kelasChart').getContext('2d');
             if(kelasChartInstance) kelasChartInstance.destroy();
@@ -1208,13 +1152,24 @@
                         label: 'Total Mengajar',
                         data: Object.values(kelasCounts),
                         backgroundColor: '#0F4C81',
-                        borderRadius: 5
+                        borderRadius: 6,
+                        barThickness: 25
                     }]
                 },
                 options: { 
-                    responsive: true, maintainAspectRatio: false, 
+                    responsive: true, 
+                    maintainAspectRatio: false, // Penting agar mengisi kontainer
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1 },
+                            grid: { color: gridColor, drawBorder: false }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false }
+                        }
+                    }
                 }
             });
         }
@@ -1223,7 +1178,6 @@
         function exportExcel() {
             if (journals.length === 0) { showToast('Tidak ada data untuk diexport', 'error'); return; }
             
-            // Format data for excel
             const dataToExport = journals.map(j => ({
                 'Tanggal': j.date,
                 'Hari': j.hari,
@@ -1242,17 +1196,8 @@
         }
 
         function exportPDF() {
-            // Using window.print for a clean, built-in PDF export via browser
-            // To make it look good, we switch to history tab and trigger print
             switchSection('riwayat', document.querySelectorAll('.nav-item')[2]);
-            setTimeout(() => {
-                window.print();
-            }, 500);
-            
-            /* Alternative with html2pdf:
-            const element = document.getElementById('history-table');
-            html2pdf().from(element).save('Jurnal_Mengajar.pdf');
-            */
+            setTimeout(() => { window.print(); }, 500);
         }
 
         function showBackupRestore() {
@@ -1265,20 +1210,19 @@
             dlAnchorElem.setAttribute("href", dataStr);
             dlAnchorElem.setAttribute("download", `Backup_Jurnal_${getTodayDateString()}.json`);
             dlAnchorElem.click();
-            showToast('File backup didownload');
+            showToast('File backup berhasil didownload');
         }
 
         function importJSON() {
             const fileInput = document.getElementById('restore-file');
             const file = fileInput.files[0];
-            if (!file) { showToast('Pilih file JSON terlebih dahulu', 'error'); return; }
+            if (!file) { showToast('Pilih file JSON terlebih dahulu!', 'error'); return; }
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (Array.isArray(importedData)) {
-                        // Merge or overwrite? Let's overwrite and append unique
                         const currentIds = new Set(journals.map(j => j.id));
                         let added = 0;
                         importedData.forEach(item => {
@@ -1289,12 +1233,11 @@
                         });
                         saveToStorage();
                         closeModal('backupModal');
-                        showToast(`Restore berhasil. ${added} data baru ditambahkan.`);
-                    } else {
-                        throw new Error("Format salah");
-                    }
+                        showToast(`Restore berhasil! ${added} data baru masuk.`);
+                        fileInput.value = ''; // Reset input
+                    } else { throw new Error("Format salah"); }
                 } catch (err) {
-                    showToast('Gagal memproses file JSON', 'error');
+                    showToast('Gagal memproses file. Pastikan itu file Backup JSON yang valid.', 'error');
                 }
             };
             reader.readAsText(file);
@@ -1303,21 +1246,18 @@
         // 10. SHORTCUTS & PWA
         function setupShortcuts() {
             document.addEventListener('keydown', function(e) {
-                // Ctrl + F = Search in history
                 if (e.ctrlKey && e.key === 'f') {
                     e.preventDefault();
                     switchSection('riwayat', document.querySelectorAll('.nav-item')[2]);
                     document.getElementById('search-input').focus();
                 }
-                // Ctrl + S = Not strictly bound to one save, but can prevent default save page dialog
                 if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
-                    showToast('Auto-save selalu aktif saat Anda mengetik di form.', 'success');
+                    showToast('Sistem Auto-save selalu aktif saat Anda mengetik.', 'success');
                 }
             });
         }
 
-        // Fake PWA Installation logic (Browser handles real prompt if manifest exists)
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -1335,27 +1275,26 @@
                     deferredPrompt = null;
                 });
             } else {
-                showToast('Aplikasi dapat diinstal melalui menu browser (Add to Home Screen).');
+                showToast('Aplikasi bisa diinstal lewat menu browser (Add to Home Screen).');
             }
         }
 
-        // Inline Service Worker for Offline Capabilities (Minimal implementation for single file)
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'jurnal-guru-v1';
+                const CACHE_NAME = 'jurnal-guru-v2';
                 self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
                 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
                 self.addEventListener('fetch', e => {
-                    // Simple pass-through, rely on browser cache for CDNs
-                    e.respondWith(fetch(e.request).catch(() => new Response('Offline mode active.')));
+                    e.respondWith(fetch(e.request).catch(() => new Response('Anda sedang offline. Aplikasi tetap bisa digunakan.')));
                 });
             `;
             const blob = new Blob([swCode], { type: 'application/javascript' });
             const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl).then(() => console.log('Offline SW registered'));
+            navigator.serviceWorker.register(swUrl);
         }
 
     </script>
 </body>
 </html>
+
 
