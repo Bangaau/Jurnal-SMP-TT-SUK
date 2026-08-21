@@ -336,9 +336,18 @@
         .badge-danger { background: var(--danger); }
         .badge-success { background: var(--success); }
         
-        .card-done { text-align: center; padding: 25px; color: var(--success); }
+        .card-done { text-align: center; padding: 25px 20px 20px 20px; color: var(--success); }
         .card-done.done-danger { color: var(--danger); }
         .card-done i { font-size: 38px; margin-bottom: 8px; }
+
+        .card-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 15px;
+        }
 
         /* ================= TABLE ================= */
         .table-responsive { overflow-x: auto; border-radius: 10px; }
@@ -700,7 +709,7 @@
             </div>
 
             <div class="form-group" id="edit-group-materi">
-                <label>Materi Pembelajaran</label>
+                <label id="edit-label-materi">Materi Pembelajaran</label>
                 <textarea id="edit-materi"></textarea>
             </div>
             
@@ -991,6 +1000,15 @@
                                 <p><strong>${jadwal.mapel} (${jadwal.kelas})</strong> - ${jadwal.jam}</p>
                                 <p style="font-size:13px; margin-top:8px; color:var(--text-main); font-style:italic;">"${isFilled.materi}"</p>
                                 <p style="font-size:11px; margin-top:5px; color:var(--text-muted)">Tanggal: ${formattedIndo}</p>
+                                
+                                <div class="card-actions">
+                                    <button class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="openEditModal('${isFilled.id}')">
+                                        <i class="fas fa-edit"></i> Edit Jurnal
+                                    </button>
+                                    <button class="btn btn-danger" style="padding: 6px 14px; font-size: 12px;" onclick="hapusJurnal('${isFilled.id}')">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
+                                </div>
                             </div>
                         </div>`;
                     } else {
@@ -1005,6 +1023,15 @@
                                 <p><strong>${jadwal.mapel} (${jadwal.kelas})</strong> - ${jadwal.jam}</p>
                                 <p style="font-size:13px; margin-top:8px; color:var(--danger); font-weight:600;">Alasan: "${isFilled.alasan || '-'}"</p>
                                 <p style="font-size:11px; margin-top:5px; color:var(--text-muted)">Tanggal: ${formattedIndo}</p>
+                                
+                                <div class="card-actions">
+                                    <button class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="openEditModal('${isFilled.id}')">
+                                        <i class="fas fa-edit"></i> Edit Jurnal
+                                    </button>
+                                    <button class="btn btn-danger" style="padding: 6px 14px; font-size: 12px;" onclick="hapusJurnal('${isFilled.id}')">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
+                                </div>
                             </div>
                         </div>`;
                     }
@@ -1181,7 +1208,16 @@
 
         function toggleEditAlasanUI() {
             const isChecked = document.getElementById('edit-terlaksana').checked;
-            document.getElementById('edit-group-alasan').style.display = isChecked ? 'none' : 'block';
+            const containerAlasan = document.getElementById('edit-group-alasan');
+            const labelMateri = document.getElementById('edit-label-materi');
+
+            if (isChecked) {
+                containerAlasan.style.display = 'none';
+                labelMateri.innerText = 'Materi Pembelajaran *';
+            } else {
+                containerAlasan.style.display = 'block';
+                labelMateri.innerText = 'Materi Pembelajaran (Opsional)';
+            }
         }
 
         function openEditModal(id) {
@@ -1191,7 +1227,7 @@
                 document.getElementById('edit-id').value = j.id;
                 document.getElementById('edit-terlaksana').checked = terlaksana;
                 document.getElementById('edit-alasan').value = j.alasan || '';
-                document.getElementById('edit-materi').value = j.materi || '';
+                document.getElementById('edit-materi').value = (j.materi === '(Tidak Terlaksana / Libur)') ? '' : (j.materi || '');
                 document.getElementById('edit-catatan').value = j.catatan || '';
                 
                 toggleEditAlasanUI();
@@ -1260,11 +1296,9 @@
                     classes += ' today';
                 }
                 
-                // Cek data jurnal pada tanggal ini
                 const journalsOnDate = journals.filter(j => j.date === dateStr);
                 
                 if (journalsOnDate.length > 0) {
-                    // Jika ada minimal 1 kelas yang TIDAK TERLAKSANA/LIBUR -> Beri warna MERAH
                     const hasUnperformed = journalsOnDate.some(j => j.terlaksana === false);
                     if (hasUnperformed) {
                         classes += ' has-journal-danger';
@@ -1306,7 +1340,7 @@
                             <span style="font-size:12px; color:var(--text-muted);"><i class="far fa-clock"></i> ${j.jam}</span>
                         </div>
                         
-                        <div style="margin-bottom: 5px;">
+                        <div style="margin-bottom: 8px;">
                             ${terlaksana ? 
                                 `<span class="badge badge-success"><i class="fas fa-check"></i> Terlaksana</span>` : 
                                 `<span class="badge badge-danger"><i class="fas fa-times"></i> Tidak Terlaksana / Libur</span>`}
@@ -1317,6 +1351,11 @@
                             `<div style="font-size:13px; color:var(--danger); font-weight:600;">Alasan: ${j.alasan || '-'}</div>`}
                         
                         ${j.catatan ? `<div style="font-size:12px; color:var(--text-muted); margin-top:5px;"><strong>Catatan:</strong> ${j.catatan}</div>` : ''}
+
+                        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px; border-top:1px dashed var(--glass-border); padding-top:8px;">
+                            <button class="btn btn-primary" style="padding:4px 10px; font-size:11px;" onclick="openEditModal('${j.id}')"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="hapusJurnal('${j.id}')"><i class="fas fa-trash"></i> Hapus</button>
+                        </div>
                     </div>`;
                 });
                 html += '</div>';
@@ -1520,7 +1559,7 @@
 
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'jurnal-guru-v4';
+                const CACHE_NAME = 'jurnal-guru-v5';
                 self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
                 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
                 self.addEventListener('fetch', e => {
