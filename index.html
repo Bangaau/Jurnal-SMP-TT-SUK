@@ -328,10 +328,17 @@
             font-weight: 500;
             background: var(--primary);
             color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
+
+        .badge-danger { background: var(--danger); }
+        .badge-success { background: var(--success); }
         
-        .card-done { text-align: center; padding: 30px; color: var(--success); }
-        .card-done i { font-size: 40px; margin-bottom: 10px; }
+        .card-done { text-align: center; padding: 25px; color: var(--success); }
+        .card-done.done-danger { color: var(--danger); }
+        .card-done i { font-size: 38px; margin-bottom: 8px; }
 
         /* ================= TABLE ================= */
         .table-responsive { overflow-x: auto; border-radius: 10px; }
@@ -350,9 +357,24 @@
         }
         .calendar-day:hover { background: rgba(0,0,0,0.1); }
         body.dark-mode .calendar-day:hover { background: rgba(255,255,255,0.1); }
-        .calendar-day.has-journal { background: var(--success); color: white; font-weight: bold; }
+        
+        /* Kalender Warna */
+        .calendar-day.has-journal-success { background: var(--success); color: white; font-weight: bold; }
+        .calendar-day.has-journal-danger { background: var(--danger); color: white; font-weight: bold; }
+        
         .calendar-day.today { border: 2px solid var(--primary); }
         .calendar-day.empty { visibility: hidden; }
+
+        .legend-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-box { width: 14px; height: 14px; border-radius: 4px; }
 
         /* ================= TOAST ================= */
         #toast-container {
@@ -521,7 +543,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
                         <div>
                             <h2 style="margin-bottom: 2px;">Isi Jurnal Mengajar</h2>
-                            <p style="color: var(--text-muted); font-size: 13px;">Pilih tanggal jika ingin memasukkan jurnal susulan.</p>
+                            <p style="color: var(--text-muted); font-size: 13px;">Pilih tanggal untuk pengisian jurnal harian atau susulan.</p>
                         </div>
                         
                         <!-- Pemilih Tanggal Mengajar -->
@@ -562,8 +584,8 @@
                                     <th>Jam</th>
                                     <th>Mapel</th>
                                     <th>Kelas</th>
-                                    <th>Materi</th>
-                                    <th>Catatan</th>
+                                    <th>Status / Materi</th>
+                                    <th>Catatan / Alasan</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -583,6 +605,23 @@
                         <h2 id="calendar-month-year">Agustus 2026</h2>
                         <button class="icon-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
                     </div>
+
+                    <!-- Legend Indikator Kalender -->
+                    <div class="legend-container">
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: var(--success);"></div>
+                            <span>Terlaksana</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: var(--danger);"></div>
+                            <span>Tidak Terlaksana / Libur</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="border: 2px solid var(--primary); background: transparent;"></div>
+                            <span>Hari Ini</span>
+                        </div>
+                    </div>
+
                     <div class="calendar-grid" id="calendar-days-name">
                         <div class="calendar-day-name">Min</div>
                         <div class="calendar-day-name">Sen</div>
@@ -596,6 +635,7 @@
                         <!-- Dates akan diinjeksi via JS -->
                     </div>
                 </div>
+
                 <!-- Detail kalender -->
                 <div class="glass-panel" id="calendar-detail" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
@@ -648,14 +688,27 @@
         <div class="modal-content slide-up">
             <h3 style="margin-bottom: 15px;">Edit Jurnal</h3>
             <input type="hidden" id="edit-id">
-            <div class="form-group">
+            
+            <div class="form-group checkbox-wrapper" style="margin-bottom: 15px;">
+                <input type="checkbox" id="edit-terlaksana" onchange="toggleEditAlasanUI()">
+                <label for="edit-terlaksana" style="margin:0; font-weight:600;">Pertemuan Terlaksana</label>
+            </div>
+
+            <div class="form-group" id="edit-group-alasan" style="display: none;">
+                <label style="color: var(--danger);">Alasan Tidak Terlaksana / Libur *</label>
+                <textarea id="edit-alasan" placeholder="Masukkan alasan (misal: Sakit, Izin, Libur Nasional...)"></textarea>
+            </div>
+
+            <div class="form-group" id="edit-group-materi">
                 <label>Materi Pembelajaran</label>
                 <textarea id="edit-materi"></textarea>
             </div>
+            
             <div class="form-group">
                 <label>Catatan</label>
-                <textarea id="edit-catatan"></textarea>
+                <textarea id="edit-catatan" style="min-height:60px;"></textarea>
             </div>
+
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button class="btn" onclick="closeModal('editModal')">Batal</button>
                 <button class="btn btn-primary" onclick="saveEdit()">Simpan Perubahan</button>
@@ -697,9 +750,8 @@
         const daysIndo = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         const monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-        // Selected Date for Schedule tab (Default: Hari Ini YYYY-MM-DD)
         let activeScheduleDate = getTodayDateString();
-        let selectedCalendarDateStr = null; // Menyimpan tanggal yang di-klik pada kalender
+        let selectedCalendarDateStr = null;
 
         // Jadwal Mengajar Sistem
         const jadwalSistem = {
@@ -738,7 +790,6 @@
             updateClock();
             setInterval(updateClock, 1000);
             
-            // Set date picker value awal
             document.getElementById('selected-date').value = activeScheduleDate;
 
             bindAutoSaveDraft();
@@ -787,6 +838,7 @@
         }
 
         function addRipple(el) {
+            if(!el) return;
             const circle = document.createElement("span");
             const diameter = Math.max(el.clientWidth, el.clientHeight);
             circle.style.width = circle.style.height = `${diameter}px`;
@@ -846,7 +898,7 @@
             return daysIndo[dateObj.getDay()];
         }
 
-        // 4. CORE FEATURES: JADWAL & SUSUL JURNAL
+        // 4. CORE FEATURES: JADWAL, TIDAK TERLAKSANA & SUSUL JURNAL
         function onDateChanged() {
             const inputVal = document.getElementById('selected-date').value;
             if(!inputVal) return;
@@ -866,10 +918,23 @@
             activeScheduleDate = formatDateToYYYYMMDD(yesterday);
             document.getElementById('selected-date').value = activeScheduleDate;
             
-            // Pindah ke tab jadwal
             switchSection('jadwal', document.querySelectorAll('.nav-item')[1]);
             renderJadwalForDate(activeScheduleDate);
-            showToast('Menampilkan jadwal untuk kemarin. Silakan isi materi.');
+            showToast('Menampilkan jadwal untuk kemarin. Silakan isi materi / keterangan.');
+        }
+
+        function toggleTerlaksanaUI(id) {
+            const isChecked = document.getElementById(`check-${id}`).checked;
+            const containerAlasan = document.getElementById(`group-alasan-${id}`);
+            const labelMateri = document.getElementById(`label-materi-${id}`);
+
+            if (isChecked) {
+                containerAlasan.style.display = 'none';
+                labelMateri.innerText = 'Materi Pembelajaran *';
+            } else {
+                containerAlasan.style.display = 'block';
+                labelMateri.innerText = 'Materi Pembelajaran (Opsional)';
+            }
         }
 
         function renderJadwalForDate(targetDateStr) {
@@ -906,30 +971,48 @@
             }
 
             jadwalHariIni.forEach((jadwal, index) => {
-                // Cek apakah jurnal sudah diisi pada tanggal target tertentu
                 const isFilled = journals.find(j => j.date === targetDateStr && j.jadwalId === jadwal.id);
                 const delay = index * 0.1;
                 let html = '';
 
                 if (isFilled) {
                     selesai++;
-                    html = `
-                    <div class="schedule-card slide-up" style="animation-delay: ${delay}s">
-                        <div class="schedule-header">
-                            <div><i class="fas fa-book"></i> ${jadwal.mapel} - ${jadwal.kelas}</div>
-                            <span class="badge" style="background:var(--success)"><i class="fas fa-check"></i> Sudah Diisi</span>
-                        </div>
-                        <div class="card-done">
-                            <i class="fas fa-check-circle"></i>
-                            <p><strong>${jadwal.mapel} (${jadwal.kelas})</strong> - ${jadwal.jam}</p>
-                            <p style="font-size:13px; margin-top:8px; color:var(--text-main); font-style:italic;">"${isFilled.materi}"</p>
-                            <p style="font-size:11px; margin-top:5px; color:var(--text-muted)">Disimpan untuk tanggal: ${formattedIndo}</p>
-                        </div>
-                    </div>`;
+                    const terlaksana = isFilled.terlaksana !== false;
+                    
+                    if (terlaksana) {
+                        html = `
+                        <div class="schedule-card slide-up" style="animation-delay: ${delay}s">
+                            <div class="schedule-header">
+                                <div><i class="fas fa-book"></i> ${jadwal.mapel} - ${jadwal.kelas}</div>
+                                <span class="badge badge-success"><i class="fas fa-check"></i> Terlaksana</span>
+                            </div>
+                            <div class="card-done">
+                                <i class="fas fa-check-circle"></i>
+                                <p><strong>${jadwal.mapel} (${jadwal.kelas})</strong> - ${jadwal.jam}</p>
+                                <p style="font-size:13px; margin-top:8px; color:var(--text-main); font-style:italic;">"${isFilled.materi}"</p>
+                                <p style="font-size:11px; margin-top:5px; color:var(--text-muted)">Tanggal: ${formattedIndo}</p>
+                            </div>
+                        </div>`;
+                    } else {
+                        html = `
+                        <div class="schedule-card slide-up" style="animation-delay: ${delay}s">
+                            <div class="schedule-header">
+                                <div><i class="fas fa-book"></i> ${jadwal.mapel} - ${jadwal.kelas}</div>
+                                <span class="badge badge-danger"><i class="fas fa-times"></i> Tidak Terlaksana / Libur</span>
+                            </div>
+                            <div class="card-done done-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <p><strong>${jadwal.mapel} (${jadwal.kelas})</strong> - ${jadwal.jam}</p>
+                                <p style="font-size:13px; margin-top:8px; color:var(--danger); font-weight:600;">Alasan: "${isFilled.alasan || '-'}"</p>
+                                <p style="font-size:11px; margin-top:5px; color:var(--text-muted)">Tanggal: ${formattedIndo}</p>
+                            </div>
+                        </div>`;
+                    }
                 } else {
                     const draftKey = `draft_${targetDateStr}_${jadwal.id}`;
                     const draftMateri = localStorage.getItem(draftKey + '_materi') || '';
                     const draftCatatan = localStorage.getItem(draftKey + '_catatan') || '';
+                    const draftAlasan = localStorage.getItem(draftKey + '_alasan') || '';
 
                     html = `
                     <div class="schedule-card slide-up" style="animation-delay: ${delay}s" id="card-${jadwal.id}">
@@ -938,18 +1021,26 @@
                             <div style="font-size:12px; color:var(--primary); font-weight:bold;"><i class="far fa-clock"></i> ${jadwal.jam}</div>
                         </div>
                         <div class="schedule-body">
+                            <div class="form-group checkbox-wrapper" style="margin-bottom: 15px;">
+                                <input type="checkbox" id="check-${jadwal.id}" checked onchange="toggleTerlaksanaUI('${jadwal.id}')">
+                                <label for="check-${jadwal.id}" style="margin:0; font-weight:600;">Pertemuan Terlaksana</label>
+                            </div>
+
+                            <div class="form-group" id="group-alasan-${jadwal.id}" style="display: none;">
+                                <label style="color: var(--danger);">Alasan Tidak Terlaksana / Libur *</label>
+                                <textarea id="alasan-${jadwal.id}" class="draft-input" data-date="${targetDateStr}" data-id="${jadwal.id}" placeholder="Misal: Sakit, Izin, Libur Nasional, Kegiatan Sekolah...">${draftAlasan}</textarea>
+                            </div>
+
                             <div class="form-group">
-                                <label>Materi Pembelajaran *</label>
+                                <label id="label-materi-${jadwal.id}">Materi Pembelajaran *</label>
                                 <textarea id="materi-${jadwal.id}" class="draft-input" data-date="${targetDateStr}" data-id="${jadwal.id}" placeholder="Ketik materi pembelajaran...">${draftMateri}</textarea>
                             </div>
+
                             <div class="form-group">
                                 <label>Catatan (Opsional)</label>
                                 <textarea id="catatan-${jadwal.id}" class="draft-input" data-date="${targetDateStr}" data-id="${jadwal.id}" placeholder="Catatan kelas, siswa absen, dll..." style="min-height:60px;">${draftCatatan}</textarea>
                             </div>
-                            <div class="form-group checkbox-wrapper">
-                                <input type="checkbox" id="check-${jadwal.id}" checked>
-                                <label for="check-${jadwal.id}" style="margin:0; font-weight:normal;">Pertemuan Terlaksana</label>
-                            </div>
+
                             <button class="btn btn-primary" style="width:100%" onclick="simpanJurnal('${jadwal.id}', '${jadwal.mapel}', '${jadwal.kelas}', '${jadwal.jam}', '${targetDateStr}')">
                                 <i class="fas fa-save"></i> Simpan Jurnal (${formattedIndo})
                             </button>
@@ -976,23 +1067,29 @@
                 input.addEventListener('input', function() {
                     const id = this.getAttribute('data-id');
                     const targetDateStr = this.getAttribute('data-date');
-                    const isMateri = this.id.startsWith('materi');
-                    localStorage.setItem(`draft_${targetDateStr}_${id}_${isMateri ? 'materi' : 'catatan'}`, this.value);
+                    let field = 'materi';
+                    if(this.id.startsWith('catatan')) field = 'catatan';
+                    if(this.id.startsWith('alasan')) field = 'alasan';
+                    
+                    localStorage.setItem(`draft_${targetDateStr}_${id}_${field}`, this.value);
                 });
             });
         }
 
         function simpanJurnal(id, mapel, kelas, jam, targetDateStr) {
+            const terlaksana = document.getElementById(`check-${id}`).checked;
             const materi = document.getElementById(`materi-${id}`).value.trim();
             const catatan = document.getElementById(`catatan-${id}`).value.trim();
-            const terlaksana = document.getElementById(`check-${id}`).checked;
+            const alasan = document.getElementById(`alasan-${id}`) ? document.getElementById(`alasan-${id}`).value.trim() : '';
 
-            if (!materi) {
-                showToast('Materi pembelajaran wajib diisi!', 'error');
+            if (terlaksana && !materi) {
+                showToast('Materi pembelajaran wajib diisi untuk kelas terlaksana!', 'error');
                 return;
             }
-            if (!terlaksana) {
-                if(!confirm('Anda belum mencentang "Pertemuan Terlaksana". Tetap simpan?')) return;
+
+            if (!terlaksana && !alasan) {
+                showToast('Alasan wajib diisi jika kelas tidak terlaksana / libur!', 'error');
+                return;
             }
 
             const dayName = getDayNameFromDateStr(targetDateStr);
@@ -1006,8 +1103,10 @@
                 jam: jam,
                 mapel: mapel,
                 kelas: kelas,
-                materi: materi,
+                materi: terlaksana ? materi : '(Tidak Terlaksana / Libur)',
                 catatan: catatan,
+                terlaksana: terlaksana,
+                alasan: terlaksana ? '' : alasan,
                 timestamp: now.getTime()
             };
 
@@ -1017,6 +1116,7 @@
             // Hapus draft
             localStorage.removeItem(`draft_${targetDateStr}_${id}_materi`);
             localStorage.removeItem(`draft_${targetDateStr}_${id}_catatan`);
+            localStorage.removeItem(`draft_${targetDateStr}_${id}_alasan`);
 
             showToast(`Jurnal untuk tanggal ${formatDateToIndo(targetDateStr)} berhasil disimpan!`);
             renderJadwalForDate(targetDateStr); 
@@ -1035,14 +1135,19 @@
             }
 
             sorted.forEach(j => {
+                const terlaksana = j.terlaksana !== false;
+                const statusBadge = terlaksana ? 
+                    `<span class="badge badge-success"><i class="fas fa-check"></i> Terlaksana</span>` : 
+                    `<span class="badge badge-danger"><i class="fas fa-times"></i> Libur/Batal</span>`;
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td style="white-space:nowrap;">${j.date} <br><small style="color:var(--text-muted);">${j.hari}</small></td>
                     <td style="white-space:nowrap;">${j.jam}</td>
                     <td><span class="badge" style="background:var(--secondary)">${j.mapel}</span></td>
                     <td style="white-space:nowrap; font-weight:500;">${j.kelas}</td>
-                    <td>${j.materi.length > 40 ? j.materi.substring(0,40)+'...' : j.materi}</td>
-                    <td>${j.catatan || '-'}</td>
+                    <td>${statusBadge}<br><small>${terlaksana ? (j.materi.length > 30 ? j.materi.substring(0,30)+'...' : j.materi) : ''}</small></td>
+                    <td>${terlaksana ? (j.catatan || '-') : `<strong style="color:var(--danger)">Alasan:</strong> ${j.alasan || '-'}`}</td>
                     <td>
                         <div class="action-btns">
                             <button class="btn btn-primary" style="padding: 6px 12px;" onclick="openEditModal('${j.id}')" title="Edit"><i class="fas fa-edit"></i></button>
@@ -1060,7 +1165,8 @@
                 j.mapel.toLowerCase().includes(term) || 
                 j.kelas.toLowerCase().includes(term) ||
                 j.date.includes(term) ||
-                j.materi.toLowerCase().includes(term)
+                j.materi.toLowerCase().includes(term) ||
+                (j.alasan && j.alasan.toLowerCase().includes(term))
             );
             renderHistoryTable(filtered);
         });
@@ -1073,12 +1179,22 @@
             }
         }
 
+        function toggleEditAlasanUI() {
+            const isChecked = document.getElementById('edit-terlaksana').checked;
+            document.getElementById('edit-group-alasan').style.display = isChecked ? 'none' : 'block';
+        }
+
         function openEditModal(id) {
             const j = journals.find(x => x.id === id);
             if(j) {
+                const terlaksana = j.terlaksana !== false;
                 document.getElementById('edit-id').value = j.id;
-                document.getElementById('edit-materi').value = j.materi;
-                document.getElementById('edit-catatan').value = j.catatan;
+                document.getElementById('edit-terlaksana').checked = terlaksana;
+                document.getElementById('edit-alasan').value = j.alasan || '';
+                document.getElementById('edit-materi').value = j.materi || '';
+                document.getElementById('edit-catatan').value = j.catatan || '';
+                
+                toggleEditAlasanUI();
                 document.getElementById('editModal').style.display = 'flex';
             }
         }
@@ -1089,14 +1205,19 @@
 
         function saveEdit() {
             const id = document.getElementById('edit-id').value;
+            const terlaksana = document.getElementById('edit-terlaksana').checked;
+            const alasan = document.getElementById('edit-alasan').value.trim();
             const materi = document.getElementById('edit-materi').value.trim();
             const catatan = document.getElementById('edit-catatan').value.trim();
             
-            if(!materi) { showToast('Materi tidak boleh kosong!', 'error'); return; }
+            if (terlaksana && !materi) { showToast('Materi pembelajaran wajib diisi!', 'error'); return; }
+            if (!terlaksana && !alasan) { showToast('Alasan wajib diisi jika kelas tidak terlaksana!', 'error'); return; }
 
             const index = journals.findIndex(j => j.id === id);
             if(index !== -1) {
-                journals[index].materi = materi;
+                journals[index].terlaksana = terlaksana;
+                journals[index].alasan = terlaksana ? '' : alasan;
+                journals[index].materi = terlaksana ? materi : '(Tidak Terlaksana / Libur)';
                 journals[index].catatan = catatan;
                 saveToStorage();
                 closeModal('editModal');
@@ -1112,7 +1233,7 @@
             document.getElementById('stat-pjok').innerText = journals.filter(j => j.mapel === 'PJOK').length;
         }
 
-        // 7. KALENDER & FITUR TAMBAH VIA TANGGAL KALENDER
+        // 7. KALENDER DENGAN INDIKATOR WARNA HIJAU DAN MERAH
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
 
@@ -1124,7 +1245,6 @@
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             const today = new Date();
-            const journalDates = journals.map(j => j.date);
 
             for (let i = 0; i < firstDay; i++) {
                 grid.innerHTML += `<div class="calendar-day empty"></div>`;
@@ -1140,7 +1260,18 @@
                     classes += ' today';
                 }
                 
-                if (journalDates.includes(dateStr)) classes += ' has-journal';
+                // Cek data jurnal pada tanggal ini
+                const journalsOnDate = journals.filter(j => j.date === dateStr);
+                
+                if (journalsOnDate.length > 0) {
+                    // Jika ada minimal 1 kelas yang TIDAK TERLAKSANA/LIBUR -> Beri warna MERAH
+                    const hasUnperformed = journalsOnDate.some(j => j.terlaksana === false);
+                    if (hasUnperformed) {
+                        classes += ' has-journal-danger';
+                    } else {
+                        classes += ' has-journal-success';
+                    }
+                }
 
                 grid.innerHTML += `<div class="${classes}" onclick="showCalendarDetail('${dateStr}')">${i}</div>`;
             }
@@ -1156,7 +1287,6 @@
 
         function showCalendarDetail(dateStr) {
             selectedCalendarDateStr = dateStr;
-            const d = new Date(dateStr);
             document.getElementById('detail-date-label').innerText = `Jurnal Tanggal ${formatDateToIndo(dateStr)}`;
             
             const list = journals.filter(j => j.date === dateStr);
@@ -1167,13 +1297,26 @@
             } else {
                 let html = '<div style="display:flex; flex-direction:column; gap:10px;">';
                 list.forEach(j => {
+                    const terlaksana = j.terlaksana !== false;
+                    
                     html += `
                     <div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:12px; border:1px solid var(--glass-border);">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; align-items:center;">
                             <strong style="color:var(--primary);">${j.mapel} - ${j.kelas}</strong>
                             <span style="font-size:12px; color:var(--text-muted);"><i class="far fa-clock"></i> ${j.jam}</span>
                         </div>
-                        <div style="font-size:13px; line-height:1.5;">${j.materi}</div>
+                        
+                        <div style="margin-bottom: 5px;">
+                            ${terlaksana ? 
+                                `<span class="badge badge-success"><i class="fas fa-check"></i> Terlaksana</span>` : 
+                                `<span class="badge badge-danger"><i class="fas fa-times"></i> Tidak Terlaksana / Libur</span>`}
+                        </div>
+
+                        ${terlaksana ? 
+                            `<div style="font-size:13px; line-height:1.5;"><strong>Materi:</strong> ${j.materi}</div>` : 
+                            `<div style="font-size:13px; color:var(--danger); font-weight:600;">Alasan: ${j.alasan || '-'}</div>`}
+                        
+                        ${j.catatan ? `<div style="font-size:12px; color:var(--text-muted); margin-top:5px;"><strong>Catatan:</strong> ${j.catatan}</div>` : ''}
                     </div>`;
                 });
                 html += '</div>';
@@ -1278,7 +1421,9 @@
                 'Jam': j.jam,
                 'Mata Pelajaran': j.mapel,
                 'Kelas': j.kelas,
+                'Status': j.terlaksana !== false ? 'Terlaksana' : 'Tidak Terlaksana / Libur',
                 'Materi Pembelajaran': j.materi,
+                'Alasan (Jika Libur/Batal)': j.alasan || '-',
                 'Catatan': j.catatan || '-'
             }));
 
@@ -1375,7 +1520,7 @@
 
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'jurnal-guru-v3';
+                const CACHE_NAME = 'jurnal-guru-v4';
                 self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
                 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
                 self.addEventListener('fetch', e => {
